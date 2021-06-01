@@ -42,7 +42,7 @@ jobs:
           -servicePrincipal ${{ secrets.SERVICE_PRINCIPAL_APPID }}
           -servicePrincipalSecret ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
           -servicePrincipalTenantID ${{ secrets.SERVICE_PRINCIPAL_TENANTID}}
-          -azureSunscriptionName ${{ secrest.AZURE_SUCRIPTION_ID}}
+          -azureSunscriptionName ${{ secrets.AZURE_SUCRIPTION_ID}}
           -resourceGroupName %RESOURCE_GROUP%
           -resourceGroupRegion %RESOURCE_GROUP_REGION%
           -serverName %SERVER_NAME%
