@@ -76,7 +76,7 @@ param(
 
     [Parameter(Mandatory = $True)]
     [string]
-    $resourceGroupNameRegion,
+    $resourceGroupRegion,
 
     [Parameter(Mandatory = $True)]  
     [string]
@@ -117,10 +117,10 @@ Write-Output ""
 
 #region Create Resource Group
 # This creates the resource group used to house the VM
-Write-Output "Creating resource group $resourceGroupName in region $resourceGroupNameRegion..."
+Write-Output "Creating resource group $resourceGroupName in region $resourceGroupRegion..."
 az group create `
     --name $resourceGroupName `
-    --location $resourceGroupNameRegion
+    --location $resourceGroupRegion
     Write-Output "Done creating resource group"
     Write-Output ""
  #endregion
