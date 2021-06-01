@@ -1,7 +1,9 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: CI/CD Pipeline for SharePoint 2019
 
+Env: 
+  OUTPUT_PATH: ${{ github.workspace }}
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -15,22 +17,35 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  # Deploy VM in Azure
+  DepoyVM:
+    runs-on : windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+# checkout code from repo
+- name: checkout repo
+  uses : actions/checkout
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+- name: look for ps1 file
+  run: |
+  ls '${{ env.OUTPUT_PATH }}\IaC\AzCLI'
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+- name : provision virtual machine in azure
+  env:
+    RESOURCE_GROUP: rg-githubitpro
+    RESOURCE_GROUP_REGION: southcentralus
+    SERVER_NAME: githubactions
+    ADMIN_LOGIN: swapz17
+
+  run: >
+    powershell -command "& '${{ env.OUTPUT_PATH }}\IaC\AzCLI\vmcreation.ps1'"
+    -servicePrincipal ${{ secrets.SERVICE_PRINCIPAL_APPID }}
+    -servicePrincipalSecret ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
+    -servicePrincipalTenantID ${{ secrest.SERVICE_PRINCIPAL_TENANTID}}
+    -azureSunscriptionName ${{ secrest.AZURE_SUCRIPTION_ID}}
+    -resourceGroupName %RESOURCE_GROUP%
+    -resourceGroupRegion %RESOURCE_GROUP_REGION%
+    -serverName %SERVER_NAME%
+    -adminLogin %ADMIN_LOGIN%
+    -adminPassword ${{ secrets.ADMIN_PASSWORD}}
