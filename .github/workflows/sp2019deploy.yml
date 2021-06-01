@@ -2,7 +2,7 @@
 
 name: CI/CD Pipeline for SharePoint 2019
 
-Env: 
+env: 
   OUTPUT_PATH: ${{ github.workspace }}
 # Controls when the action will run. 
 on:
@@ -18,18 +18,18 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # Deploy VM in Azure
-  DepoyVM:
+  DeployVM:
     runs-on : windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # checkout code from repo
       - name: checkout repo
-        uses : actions/checkout
+        uses : actions/checkout@v1
 
       - name: look for ps1 file
-      run: |
-        ls '${{ env.OUTPUT_PATH }}\IaC\AzCLI'
+        run: |
+          ls '${{ env.OUTPUT_PATH }}\IaC\AzCLI'
 
       - name : provision virtual machine in azure
         env:
@@ -37,7 +37,6 @@ jobs:
           RESOURCE_GROUP_REGION: southcentralus
           SERVER_NAME: githubactions
           ADMIN_LOGIN: swapz17
-
         run: >
           powershell -command "& '${{ env.OUTPUT_PATH }}\IaC\AzCLI\vmcreation.ps1'"
           -servicePrincipal ${{ secrets.SERVICE_PRINCIPAL_APPID }}
