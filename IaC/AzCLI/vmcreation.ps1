@@ -112,6 +112,18 @@ param(
 
     [Parameter(Mandatory = $True)]  
     [string]
+    $vnetName,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $appVMSize,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $dataVMSize,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
     $adminLogin,
 
     [Parameter(Mandatory = $True)]  
@@ -153,6 +165,58 @@ az group create `
     Write-Output ""
  #endregion
 
+#region create VNET
+# App Sunet 123 Usable IPs
+az network vnet create `
+    --name $vnetName `
+    --address-prefixes 10.0.0.0/24 `
+    --resource-group $resourceGroupName `
+    --subnet-name AppSubnet `
+    --subnet-prefixes 10.0.0.0/25 `
+
+# Data Subnet 50 usable IPs
+az network vnet subnet create `
+	--vnet-name $vnetName `
+	--resource-group $resourceGroupName `
+	--name DataSubnet `
+    --address-prefixes 10.0.0.128/26
+
+# Bastion Subnet 27 usable IPs
+az network vnet subnet create `
+	--vnet-name $vnetName `
+	--resource-group $resourceGroupName `
+	--name AzureBastionSubnet `
+    --address-prefixes 10.0.0.192/27
+
+#endregion
+
+#region NSG
+az network nsg create `
+    --name AppNSG `
+    --resource-group $resourceGroupName
+
+az network nsg create `
+    --name DataNSG `
+    --resource-group $resourceGroupName
+
+#endregion
+
+#region Bastion
+
+az network public-ip create `
+    --name BastionHost `
+    --resource-group $resourceGroupName `
+    --sku Standard
+
+az network bastion create `
+    --name SP2019Bastion `
+    --public-ip-address BastionHost `
+    --resource-group $resourceGroupName `
+    --vnet-name $vnetName
+
+#endregion
+
+
 #region Create VM
 # Create a VMs in the resource group
 try {
@@ -162,7 +226,12 @@ try {
         --name $frontEndDistServerName1 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg AppNSG `
+        --size $appVMSize `
+        --os-disk-name ($frontEndDistServerName1 + '_OSDisk')
+
 
     Write-Output "Creating VM FrontEnd & Distributed Cache 2"
     az vm create  `
@@ -170,7 +239,11 @@ try {
         --name $frontEndDistServerName2 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg AppNSG `
+        --size $appVMSize `
+        --os-disk-name ($frontEndDistServerName2 + '_OSDisk' )
     
     Write-Output "Creating VM Application 1"
     az vm create  `
@@ -178,7 +251,11 @@ try {
         --name $appServerName1 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg AppNSG `
+        --size $appVMSize `
+        --os-disk-name ( $appServerName1 + '_OSDisk' )
 
     Write-Output "Creating VM Application 2"
     az vm create  `
@@ -186,7 +263,11 @@ try {
         --name $appServerName2 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg AppNSG `
+        --size $appVMSize `
+        --os-disk-name ( $appServerName2 + '_OSDisk' )
     
     Write-Output "Creating VM Search 1"
     az vm create  `
@@ -194,7 +275,11 @@ try {
         --name $searchServerName1 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg AppNSG `
+        --size $appVMSize `
+        --os-disk-name ( $searchServerName1 + '_OSDisk' )
 
     Write-Output "Creating VM Search 2"
     az vm create  `
@@ -202,7 +287,11 @@ try {
         --name $searchServerName2 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg AppNSG `
+        --size $appVMSize `
+        --os-disk-name ( $searchServerName2 + '_OSDisk' )
 
     Write-Output "Creating VM Database 1"
     az vm create  `
@@ -210,7 +299,11 @@ try {
         --name $databaseServerName1 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg DataNSG `
+        --size $dataVMSize `
+        --os-disk-name ( $databaseServerName1 + '_OSDisk' )
 
     Write-Output "Creating VM Database 2"
     az vm create  `
@@ -218,7 +311,13 @@ try {
         --name $databaseServerName2 `
         --image win2019datacenter `
         --admin-username $adminLogin `
-        --admin-password $adminPassword
+        --admin-password $adminPassword `
+        --public-ip-address '""' `
+        --nsg DataNSG `
+        --size $dataVMSize `
+        --os-disk-name ( $databaseServerName2 + '_OSDisk' )
+
+
     }
 catch {
     Write-Output "VM already exists"

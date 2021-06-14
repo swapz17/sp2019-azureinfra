@@ -33,8 +33,8 @@ jobs:
 
       - name : provision virtual machine in azure
         env:
-          RESOURCE_GROUP: rg-githubitpro
-          RESOURCE_GROUP_REGION: southcentralus
+          RESOURCE_GROUP: SP2019
+          RESOURCE_GROUP_REGION: centralindia
           FRONTEND_DIST_SERVER_NAME1: SP2019FEDC1
           FRONTEND_DIST_SERVER_NAME2: SP2019FEDC2
           APP_SERVER_NAME1: SP2019APP1
@@ -43,6 +43,10 @@ jobs:
           SEARCH_SERVER_NAME2: SP2019SRCH2
           DATABASE_SERVER_NAME1: SP2019DB1
           DATABASE_SERVER_NAME2: SP2019DB2
+          APP_VM_SIZE: Standard_D4s_v4
+          DATA_VM_SIZE: Standard_D4s_v4
+          VNET_NAME: SP2019Vnet
+
           ADMIN_LOGIN: swapz17
         run: >
           powershell -command "& '${{ env.OUTPUT_PATH }}\IaC\AzCLI\vmcreation.ps1'"
@@ -60,5 +64,8 @@ jobs:
           -searchServerName2 %SEARCH_SERVER_NAME2%
           -databaseServerName1 %DATABASE_SERVER_NAME1%
           -databaseServerName2 %DATABASE_SERVER_NAME2%
+          -vnetName %VNET_NAME%
+          -appVMSize %APP_VM_SIZE%
+          -dataVMSize %DATA_VM_SIZE%
           -adminLogin %ADMIN_LOGIN%
           -adminPassword ${{ secrets.ADMIN_PASSWORD}}
