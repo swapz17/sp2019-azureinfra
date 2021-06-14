@@ -80,7 +80,35 @@ param(
 
     [Parameter(Mandatory = $True)]  
     [string]
-    $serverName,
+    $frontEndDistServerName1,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $frontEndDistServerName2,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $appServerName1,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $appServerName2,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $searchServerName1,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $searchServerName2,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $databaseServerName1,
+
+    [Parameter(Mandatory = $True)]  
+    [string]
+    $databaseServerName2,
 
     [Parameter(Mandatory = $True)]  
     [string]
@@ -126,12 +154,68 @@ az group create `
  #endregion
 
 #region Create VM
-# Create a VM in the resource group
-Write-Output "Creating VM..."
+# Create a VMs in the resource group
 try {
+    Write-Output "Creating VM FrontEnd & Distributed Cache 1"
     az vm create  `
         --resource-group $resourceGroupName `
-        --name $serverName `
+        --name $frontEndDistServerName1 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+
+    Write-Output "Creating VM FrontEnd & Distributed Cache 2"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $frontEndDistServerName2 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+    
+    Write-Output "Creating VM Application 1"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $appServerName1 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+
+    Write-Output "Creating VM Application 2"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $appServerName2 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+    
+    Write-Output "Creating VM Search 1"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $searchServerName1 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+
+    Write-Output "Creating VM Search 2"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $searchServerName2 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+
+    Write-Output "Creating VM Database 1"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $databaseServerName1 `
+        --image win2019datacenter `
+        --admin-username $adminLogin `
+        --admin-password $adminPassword
+
+    Write-Output "Creating VM Database 2"
+    az vm create  `
+        --resource-group $resourceGroupName `
+        --name $databaseServerName2 `
         --image win2019datacenter `
         --admin-username $adminLogin `
         --admin-password $adminPassword
