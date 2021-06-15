@@ -43,10 +43,9 @@ jobs:
           SEARCH_SERVER_NAME2: SP2019SRCH2
           DATABASE_SERVER_NAME1: SP2019DB1
           DATABASE_SERVER_NAME2: SP2019DB2
-          APP_VM_SIZE: Standard_D4s_v4
-          DATA_VM_SIZE: Standard_D4s_v4
+          APP_VM_SIZE: Standard_D2s_v4
+          DATA_VM_SIZE: Standard_D2s_v4
           VNET_NAME: SP2019Vnet
-
           ADMIN_LOGIN: swapz17
         run: >
           powershell -command "& '${{ env.OUTPUT_PATH }}\IaC\AzCLI\vmcreation.ps1'"
