@@ -135,14 +135,13 @@ param(
 #region Login
 # This logs into Azure with a Service Principal Account
 #
-Write-Output "Logging in to Azure with a service principal..."
+Write-Output "Logging in to Azure with a service principal " $servicePrincipal
 az login `
     --service-principal `
     --username $servicePrincipal `
     --password $servicePrincipalSecret `
     --tenant $servicePrincipalTenantId
-Write-Output "Done"
-Write-Output ""
+Write-Output "Logged in to Azure with a service principal " $servicePrincipal
 #endregion
 
 #region Subscription
@@ -151,8 +150,7 @@ Write-Output ""
 Write-Output "Setting default azure subscription..."
 az account set `
     --subscription $azureSubscriptionName
-Write-Output "Done"
-Write-Output ""
+Write-Output "Default Azure subscription set to " $azureSubscriptionName
 #endregion
 
 #region Create Resource Group
@@ -161,8 +159,7 @@ Write-Output "Creating resource group $resourceGroupName in region $resourceGrou
 az group create `
     --name $resourceGroupName `
     --location $resourceGroupRegion
-    Write-Output "Done creating resource group"
-    Write-Output ""
+Write-Output "Done creating resource group"
  #endregion
 
 #region create VNET
@@ -187,6 +184,15 @@ az network vnet subnet create `
 	--resource-group $resourceGroupName `
 	--name AzureBastionSubnet `
     --address-prefixes 10.0.0.192/27
+
+#endregion
+
+# WAF Subnet 11 usable IPs
+az network vnet subnet create `
+	--vnet-name $vnetName `
+	--resource-group $resourceGroupName `
+	--name WAFSubnet `
+    --address-prefixes 10.0.0.224/28
 
 #endregion
 
@@ -323,5 +329,34 @@ catch {
     Write-Output "VM already exists"
     }
 Write-Output "Done creating VM"
-Write-Output ""
+#endregion
+
+#region Application Gateway
+Write-Output
+az network public-ip create `
+    --name AppGatewayHost `
+    --resource-group $resourceGroupName `
+    --sku Standard
+
+$feServer1 = az vm show `
+                -g $resourceGroupName `
+                -n $frontEndDistServerName1 `
+                --show-details --query 'privateIps'
+$feServer2 = az vm show `
+                -g $resourceGroupName `
+                -n $frontEndDistServerName2 `
+                --show-details --query 'privateIps'
+
+az network application-gateway create `
+    --name Sp2019AppGateway `
+    --location centralindia `
+    --resource-group $resourceGroupName `
+    --capacity 2 `
+    --sku Standard_v2 `
+    --http-settings-cookie-based-affinity Disabled `
+    --public-ip-address AppGatewayHost `
+    --vnet-name Sp2019VNet `
+    --subnet WAFSubnet `
+    --servers "$feServer1" "$feServer2"
+
 #endregion
