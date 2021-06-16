@@ -303,7 +303,7 @@ try {
     az vm create  `
         --resource-group $resourceGroupName `
         --name $databaseServerName1 `
-        --image win2019datacenter `
+        --image MicrosoftSQLServer:sql2019-ws2019:enterprisedbengineonly-gen2:15.0.200512 `
         --admin-username $adminLogin `
         --admin-password $adminPassword `
         --public-ip-address '""' `
@@ -315,7 +315,7 @@ try {
     az vm create  `
         --resource-group $resourceGroupName `
         --name $databaseServerName2 `
-        --image win2019datacenter `
+        --image MicrosoftSQLServer:sql2019-ws2019:enterprisedbengineonly-gen2:15.0.200512 `
         --admin-username $adminLogin `
         --admin-password $adminPassword `
         --public-ip-address '""' `
